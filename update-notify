@@ -1,0 +1,77 @@
+#!/bin/bash
+
+
+source /usr/local/etc/update-notify.config
+
+apt_update()
+{
+    RESULT=$(apt update 2>/dev/null)
+    return $?
+}
+
+check_upgradable()
+{
+    RESULT=$(apt list --upgradable 2>/dev/null | wc -l)
+    if [ $? -ne 0 ]; then
+        return 1
+    fi
+    if [[ $RESULT -gt 0 ]]; then
+        return 0
+        UPDATE_NUM=${RESULt}
+    fi
+    return 1
+}
+
+check_reboot_required()
+{
+    if [ -f "/var/run/reboot-required" ]; then
+        return 0
+    fi
+    return 1
+}
+
+notify_discord()
+{
+    curl -X POST \
+        -H "Content-Type: application/json" \
+        -d "{
+            \"content\": \"$1\"
+        }" \
+        $DISCORD_URL
+    return $?
+}
+
+main()
+{
+    # updateのチェック
+    apt_update
+    if [ $? -ne 0 ]; then
+        notify_discord "updateのチェックに失敗しました。"
+        exit 2
+    fi
+
+    # updateがあるかどうかをチェック
+    check_upgradable
+    if [ $? -ne 0 ]; then
+        notify_discord "updateの存在チェックに失敗しました。"
+        exit 3
+    fi
+
+    # 再起動の必要があるかチェック
+    check_reboot_required
+    if [ $? -ne 0 ]; then
+        REBOOT_REQUIRED="再起動が必要です。"
+    fi
+
+    # Discordに通知
+    HOSTNAME=$(hostname)
+    MESSAGE=$(cat << EOS
+ホスト名：${HOSTNAME}。
+アップデートが${UPDATE_NUM}件あります。"
+${REBOOT_REQUIRED}
+EOS
+)
+    notify_discord $MESSAGE
+}
+
+main
