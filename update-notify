@@ -16,8 +16,8 @@ check_upgradable()
         return 1
     fi
     if [[ $RESULT -gt 0 ]]; then
+        UPDATE_NUM=$(($RESULT - 1))
         return 0
-        UPDATE_NUM=${RESULt}
     fi
     return 1
 }
@@ -45,7 +45,7 @@ main()
 {
     # updateのチェック
     apt_update
-    if [ $? -ne 0 ]; then
+    if [ $? -ne 100 ]; then
         notify_discord "updateのチェックに失敗しました。"
         exit 2
     fi
@@ -66,9 +66,7 @@ main()
     # Discordに通知
     HOSTNAME=$(hostname)
     MESSAGE=$(cat << EOS
-ホスト名：${HOSTNAME}。
-アップデートが${UPDATE_NUM}件あります。"
-${REBOOT_REQUIRED}
+ホスト名：${HOSTNAME}。\nアップデートが${UPDATE_NUM}件あります。\n${REBOOT_REQUIRED}
 EOS
 )
     notify_discord $MESSAGE
