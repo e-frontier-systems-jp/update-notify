@@ -45,7 +45,7 @@ main()
 {
     # updateのチェック
     apt_update
-    if [ $? -ne 100 ]; then
+    if [ $? -ne 0 ]; then
         notify_discord "updateのチェックに失敗しました。"
         exit 2
     fi
