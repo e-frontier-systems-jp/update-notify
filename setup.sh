@@ -29,10 +29,14 @@ if [ ! -f "/usr/local/etc/update-notify.config" ]; then
     chmod 600 /usr/local/etc/update-notify.config
 fi
 
+if [ -f "/etc/cron.daily/update-notify-trigger" ]; then
+    rm -f /etc/cron.daily/update-notify-trigger
+fi
+
 echo
-echo "cron.dailyにファイルをコピーしています"
-cp ${PWD}/update-notify-trigger /etc/cron.daily/update-notify-trigger
-chmod 755 /etc/cron.daily/update-notify-trigger
+echo "cron.dにファイルをコピーしています"
+cp ${PWD}/update-notify-trigger /etc/cron.d/update-notify-trigger
+chmod 644 /etc/cron.d/update-notify-trigger
 
 echo 
 echo "done."

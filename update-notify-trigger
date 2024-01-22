@@ -1,2 +1,2 @@
 # 毎日 05:00 に起動させる
-0 5 * * *   root    /usr/local/sbin/update-notify
+15 5 * * *   root    /usr/local/sbin/update-notify
